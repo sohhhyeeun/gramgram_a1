@@ -14,6 +14,9 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
+    //build.gradle을 통해 가져온 spring security 내에 기존 설정 객체가 들어있음.
+    //커스텀 설정 객체 생성을 통해 기존 설정 객체를 끔.
+
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
