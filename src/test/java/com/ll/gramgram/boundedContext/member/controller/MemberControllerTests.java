@@ -26,8 +26,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest // 스프링부트 관련 컴포넌트 테스트할 때 붙여야 함, Ioc 컨테이너 작동시킴
-@AutoConfigureMockMvc // http 요청, 응답 테스트
+@SpringBootTest // 스프링부트 관련 컴포넌트 테스트할 때 / Ioc 컨테이너 작동시킴 (스프링 부트의 기능 온전히 사용 가능)
+@AutoConfigureMockMvc // http 요청, 응답 테스트할 때 -> @Autowired
 @Transactional // 실제로 테스트에서 발생한 DB 작업이 영구적으로 적용되지 않도록, test + 트랜잭션 => 자동롤백
 @ActiveProfiles("test") // application-test.yml 을 활성화 시킨다.
 public class MemberControllerTests {
@@ -39,16 +39,16 @@ public class MemberControllerTests {
     @Test
     @DisplayName("회원가입 폼")
     void t001() throws Exception {
-        // WHEN
+        // WHEN: mvc를 통해 get 요청으로 수행
         ResultActions resultActions = mvc
                 .perform(get("/member/join"))
-                .andDo(print()); // 크게 의미 없고, 그냥 확인용
+                .andDo(print()); // 확인용
 
         // THEN
         resultActions
-                .andExpect(handler().handlerType(MemberController.class))
-                .andExpect(handler().methodName("showJoin"))
-                .andExpect(status().is2xxSuccessful())
+                .andExpect(handler().handlerType(MemberController.class)) //'/member/join'을 요청했을 때 MemberController가 작동했어야 함.
+                .andExpect(handler().methodName("showJoin")) //그 안에 메소드로는 showJoin이 작동했어야 함.
+                .andExpect(status().is2xxSuccessful()) //성공했을 때
                 .andExpect(content().string(containsString("""
                         <input type="text" name="username"
                         """.stripIndent().trim())))
@@ -67,7 +67,7 @@ public class MemberControllerTests {
         // WHEN
         ResultActions resultActions = mvc
                 .perform(post("/member/join")
-                        .with(csrf()) // CSRF 키 생성
+                        .with(csrf()) // CSRF 키 생성 (th:action 시 키가 생성되는데 키가 없으면 안되기 때문에 CSRF 키 생성)
                         .param("username", "user10")
                         .param("password", "1234")
                 )
